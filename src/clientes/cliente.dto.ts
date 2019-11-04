@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsBoolean, IsUUID, IsPhoneNumber, IsOptional, IsBooleanString } from 'class-validator';
+import { IsString, IsNotEmpty, IsUUID, IsPhoneNumber, IsOptional, IsBooleanString } from 'class-validator';
 
 export class ClienteDto {
     @IsUUID()

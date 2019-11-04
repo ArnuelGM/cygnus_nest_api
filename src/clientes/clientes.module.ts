@@ -6,14 +6,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ClienteSchema } from './cliente.schema';
 
 @Module({
-  controllers: [ClientesController],
-  imports: [
-    MongooseModule.forFeature([
-      { name: 'Cliente', schema: ClienteSchema },
-    ]),
-    forwardRef(() => CuentasModule),
-  ],
-  providers: [ClientesService],
-  exports: [ClientesService],
+    controllers: [ClientesController],
+    imports: [
+        MongooseModule.forFeature([
+            { name: 'Cliente', schema: ClienteSchema },
+        ]),
+        forwardRef(() => CuentasModule),
+    ],
+    providers: [ClientesService],
+    exports: [ClientesService],
 })
 export class ClientesModule {}

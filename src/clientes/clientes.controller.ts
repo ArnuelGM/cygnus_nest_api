@@ -10,32 +10,36 @@ export class ClientesController {
     ) {}
 
     @Get()
-    getClientes() {
-        return this.clientesService.getClientes();
+    async getClientes() {
+        return await this.clientesService.getClientes();
     }
 
     @Get(':id')
-    getCliente(@Param('id') id: string) {
-        return this.clientesService.getCliente(id);
+    async getCliente(@Param('id') id: string) {
+        return await this.clientesService.getCliente(id);
     }
 
+    /**
+     * Crear un nuevo cliente
+     * @param cliente : Datos del cliente
+     */
     @Post()
-    saveCliente(@Body() cliente: ClienteDto) {
-        return this.clientesService.saveCliente(cliente);
+    async saveCliente(@Body() cliente: ClienteDto) {
+        return await this.clientesService.saveCliente(cliente);
     }
 
     @Put(':id')
-    updateCliente(@Param('id') id: string, @Body() clienteData: ClienteDto) {
-        return this.clientesService.updateCliente(id, clienteData);
+    async updateCliente(@Param('id') id: string, @Body() clienteData: ClienteDto) {
+        return await this.clientesService.updateCliente(id, clienteData);
     }
 
     @Delete(':id')
-    deleteCliente(@Param('id') id: string) {
-        return this.clientesService.deleteCliente(id);
+    async deleteCliente(@Param('id') id: string) {
+        return await this.clientesService.deleteCliente(id);
     }
 
     @Get(':id/cuentas')
-    getCuentasClientes(@Param('id') id: string) {
+    async getCuentasClientes(@Param('id') id: string) {
         const cuentas = this.clientesService.getCuentas(id);
         return cuentas;
     }

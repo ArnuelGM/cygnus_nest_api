@@ -1,16 +1,18 @@
-import * as dotenv from "dotenv";
-import * as Joi from "@hapi/joi";
-import * as fs from "fs";
+import * as dotenv from 'dotenv';
+import * as Joi from '@hapi/joi';
+import * as fs from 'fs';
+import { Injectable } from '@nestjs/common';
 
 export type EnvConfig = Record<string, string>;
 
+@Injectable()
 export class ConfigService {
     private readonly envConfig: EnvConfig;
+    private filePath: string = '.env';
 
-    constructor(filePath: string) {
-        const config = dotenv.parse(fs.readFileSync(filePath));
+    constructor() {
+        const config = dotenv.parse(fs.readFileSync(this.filePath));
         this.envConfig = this.validateInput(config);
-        console.log('Config: ', this.envConfig);
     }
 
     get(key: string): string {
@@ -19,11 +21,11 @@ export class ConfigService {
 
     private validateInput(envConfig: EnvConfig): EnvConfig {
         const envVarsSchema: Joi.ObjectSchema = Joi.object({
-            MONGODB_URI: Joi.string().required()
+            MONGODB_URI: Joi.string().required(),
         });
 
         const { error, value: validatedEnvConfig } = envVarsSchema.validate(
-            envConfig
+            envConfig,
         );
         if (error) {
             throw new Error(`Config validation error: ${error.message}`);

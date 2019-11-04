@@ -2,52 +2,51 @@ import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { CuentaDto } from './cuenta.dto';
 import uuid = require('uuid');
 import { ClientesService } from '../clientes/clientes.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Cuenta } from './cuenta.interface';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class CuentasService {
 
     private cuentas: CuentaDto[] = [];
 
-    @Inject(forwardRef(() => ClientesService))
-    private readonly clienteService: ClientesService;
+    constructor(
+        @Inject(forwardRef(() => ClientesService))
+        private readonly clienteService: ClientesService,
+        @InjectModel('Cuenta') private readonly cuentaModel: Model<Cuenta>,
+    ) {}
 
-    getCuentas() {
-        return this.cuentas;
+    async getCuentas() {
+        return await this.cuentaModel.find();
     }
 
-    getCuenta(id: string) {
-        return this.cuentas.find(c => c.id === id);
+    async getCuenta(id: string) {
+        return await this.cuentaModel.findById(id);
     }
 
-    saveCuenta(cuenta: CuentaDto) {
-        cuenta.id = uuid.v4().toString();
-        this.cuentas.push(cuenta);
+    async saveCuenta(cuentaData: CuentaDto) {
+        const cuenta = new this.cuentaModel(cuentaData);
+        await cuenta.save();
         return cuenta;
     }
 
-    updateCuenta(id: string, cuentaData: CuentaDto) {
-        let cuenta = this.getCuenta(id);
-        cuenta = {
-            id,
-            ...cuenta,
-            ...cuentaData,
-        };
-        this.cuentas[ this.cuentas.findIndex(c => c.id === id) ] = cuenta;
-        return cuenta;
+    async updateCuenta(id: string, cuentaData: CuentaDto) {
+        await this.cuentaModel.findByIdAndUpdate(id, cuentaData);
+        return await this.cuentaModel.findById(id);
     }
 
-    deleteCuenta(id: string) {
-        const cuenta = this.getCuenta(id);
-        this.cuentas = this.cuentas.filter(c => c.id !== id);
-        return cuenta;
+    async deleteCuenta(id: string) {
+        return this.cuentaModel.findByIdAndDelete(id);
     }
 
-    getCliente(id: string) {
-        const cuenta = this.getCuenta(id);
-        return this.clienteService.getCliente(cuenta.idCliente);
+    async getCliente(id: string) {
+        return await this.clienteService.getCliente( (await this.getCuenta(id)).idCliente );
     }
 
-    getCuentasByClienteId(idCliente: string) {
-        return this.cuentas.filter(c => c.idCliente === idCliente);
+    async getCuentasByClienteId(idCliente: string) {
+        return await this.cuentaModel.find({
+            idCliente,
+        }).exec();
     }
 }

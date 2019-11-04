@@ -2,6 +2,9 @@ import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { ClienteDto } from './cliente.dto';
 import * as uuid from 'uuid';
 import { CuentasService } from '../cuenta/cuentas.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Cliente } from './cliente.interface';
 
 @Injectable()
 export class ClientesService {
@@ -11,41 +14,44 @@ export class ClientesService {
     constructor(
         @Inject(forwardRef(() => CuentasService))
         private readonly cuentasService: CuentasService,
+        @InjectModel('Cliente') private readonly clienteModel: Model<Cliente>,
     ) {}
 
-    getCliente(id: string) {
-        return this.clientes.find(cliente => cliente.id === id);
+    /**
+     * Obiene un registro de tipo cliente
+     * @param id : string
+     */
+    async getCliente(id: string) {
+        return await this.clienteModel.findById(id);
     }
 
-    getClientes() {
-        return this.clientes;
+    /**
+     * Obiene un listado de clienes
+     */
+    async getClientes() {
+        return await this.clienteModel.find();
     }
 
-    saveCliente(cliente: ClienteDto) {
-        const id = uuid.v4().toString();
-        cliente.id = id;
-        this.clientes.push(cliente);
-        return this.getCliente(id);
-    }
-
-    updateCliente(id: string, clienteData: ClienteDto) {
-        let cliente = this.getCliente(id);
-        cliente = {
-            id,
-            ...cliente,
-            ...clienteData,
-        };
-        this.clientes[ this.clientes.findIndex(c => c.id === id) ] = cliente;
+    /**
+     * Crea un nuevo regisro de cliente
+     * @param clienteData : ClienteDto
+     */
+    async saveCliente(clienteData: ClienteDto) {
+        const cliente = new this.clienteModel(clienteData);
+        await cliente.save();
         return cliente;
     }
 
-    deleteCliente(id: string) {
-        const cliente = this.getCliente(id);
-        this.clientes = this.clientes.filter(c => c.id !== id);
-        return cliente;
+    async updateCliente(id: string, clienteData: ClienteDto) {
+        await this.clienteModel.findByIdAndUpdate(id, clienteData);
+        return await this.getCliente(id);
     }
 
-    getCuentas(id: string) {
-        return this.cuentasService.getCuentasByClienteId(id);
+    async deleteCliente(id: string) {
+        return await this.clienteModel.findByIdAndDelete(id);
+    }
+
+    async getCuentas(id: string) {
+        return await this.cuentasService.getCuentasByClienteId(id);
     }
 }

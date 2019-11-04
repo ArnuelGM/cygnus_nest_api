@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsNumber, IsDate, IsDecimal, IsUUID, IsOptional, IsNumberString, IsCurrency, IsDateString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsDate, IsDecimal, IsUUID, IsOptional, IsNumberString, IsCurrency, IsDateString, IsMongoId } from 'class-validator';
 
 export class CuentaDto {
     @IsOptional()
     @IsUUID()
     id: string;
 
-    @IsUUID()
+    @IsMongoId()
     @IsNotEmpty({ message: 'Este campo no puede estar vacio y debe ser un id de cliente válido' })
     idCliente: string;
 
@@ -14,7 +14,7 @@ export class CuentaDto {
     capital: number;
 
     @IsNotEmpty()
-    fecha: number;
+    fecha: string;
 
     @IsOptional()
     @IsDecimal()
